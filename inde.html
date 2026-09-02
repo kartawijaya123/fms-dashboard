@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kartawijaya Monitoring</title>
+<style>
+*{box-sizing:border-box}
+:root{
+ --bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#667085;
+ --line:#e5e7eb;--dark:#111827;--green:#16a34a;--red:#dc2626
+}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+.header{background:linear-gradient(135deg,#111827,#1f2937);color:#fff;padding:18px 26px;display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border-radius:11px;background:#fff1;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:21px}
+.title{font-size:20px;font-weight:800}.subtitle{font-size:11px;color:#b9c1cf;margin-top:3px}
+.live{font-size:11px;color:#d1fae5;display:flex;align-items:center;gap:7px}.dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 5px #22c55e22}
+.container{width:calc(100% - 36px);max-width:1500px;margin:18px auto 35px}
+.filter,.section,.kpi,.soc-card{background:var(--card);border:1px solid var(--line);border-radius:15px;box-shadow:0 4px 18px #0f172a0a}
+.filter{padding:14px;display:grid;grid-template-columns:130px 150px 170px 150px 120px 1fr;gap:10px;align-items:end;margin-bottom:15px}
+.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:10px;font-weight:800;color:var(--muted)}
+input,select,button{height:38px;border:1px solid #d9dee6;border-radius:9px;background:#fff;padding:0 10px;font-size:12px}
+button{background:var(--dark);color:#fff;border:0;font-weight:800;cursor:pointer}button:disabled{opacity:.6}
+.status{text-align:right;font-size:11px;color:var(--muted);align-self:center}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:15px}.kpi{padding:16px;min-height:100px}
+.label{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase}.value{font-size:28px;font-weight:900;margin-top:9px;letter-spacing:-.7px}.sub{font-size:9px;color:var(--muted);margin-top:5px}
+.soc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:15px}.soc-card{padding:17px;border-left:4px solid var(--dark)}.soc-title{font-size:11px;color:#526071;font-weight:800;text-transform:uppercase}.soc-value{font-size:28px;font-weight:900;margin-top:5px}.soc-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.section{padding:17px;margin-bottom:15px}.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.section-title{font-size:14px;font-weight:900}.note{font-size:9px;color:var(--muted)}
+.conveyor-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:9px}.conveyor{border:1px solid var(--line);border-radius:11px;padding:12px;background:#fbfcfe}.c-head{display:flex;justify-content:space-between;gap:6px;align-items:center}.c-name{font-size:11px;font-weight:900}.pill{font-size:8px;padding:4px 6px;border-radius:20px;font-weight:800}.online{background:#dcfce7;color:#15803d}.offline{background:#f1f5f9;color:#64748b}
+.c-number{font-size:24px;font-weight:900;margin-top:14px}.c-label{font-size:8px;color:var(--muted);margin-top:2px}.c-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px;padding-top:9px;border-top:1px solid var(--line)}.mini-label{font-size:8px;color:var(--muted)}.mini-value{font-size:13px;font-weight:850;margin-top:2px}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:separate;border-spacing:0;font-size:10px}th{background:#f8fafc;color:#526071;font-size:9px;font-weight:800;padding:10px 8px;white-space:nowrap;border-bottom:1px solid var(--line)}td{padding:9px 8px;border-bottom:1px solid #eef1f5;text-align:center;white-space:nowrap}td:first-child,th:first-child{text-align:left}.hour{font-weight:850}.prod{font-weight:900}.total{background:#f8fafc;font-weight:900}
+.ranking{display:grid;grid-template-columns:1fr 1fr;gap:13px}.rank-card{border:1px solid var(--line);border-radius:12px;overflow:hidden}.rank-title{padding:12px 14px;font-size:11px;font-weight:900}.top{background:#ecfdf3;color:#166534}.bottom{background:#fff7ed;color:#9a3412}.rank-table td,.rank-table th{font-size:9px}.rank{font-weight:900;width:30px}.op{text-align:left!important;font-weight:800}
+@media(max-width:1200px){.filter{grid-template-columns:repeat(3,1fr)}.conveyor-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.soc-grid{grid-template-columns:1fr}.ranking{grid-template-columns:1fr}}
+@media(max-width:600px){.container{width:calc(100% - 18px)}.filter{grid-template-columns:1fr}.kpi-grid{grid-template-columns:1fr}.conveyor-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<header class="header">
+ <div class="brand">
+  <div class="logo">MK</div>
+  <div>
+   <div class="title">Kartawijaya Monitoring</div>
+   <div class="subtitle">Production Performance • Conveyor 1–7</div>
+  </div>
+ </div>
+ <div class="live"><span class="dot"></span><span id="modeText">LIVE FMS</span><span id="lastUpdate">-</span></div>
+</header>
+
+<main class="container">
+
+<section class="filter">
+ <div class="field"><label>MODE</label>
+  <select id="mode"><option value="LIVE">LIVE</option><option value="HISTORY">HISTORY</option></select>
+ </div>
+ <div class="field"><label>TANGGAL</label><input id="date" type="date"></div>
+ <div class="field"><label>SHIFT</label>
+  <select id="shift">
+   <option value="all">Semua Shift</option>
+   <option value="1">Shift 1 • 00:00–08:00</option>
+   <option value="2">Shift 2 • 08:00–16:00</option>
+   <option value="3">Shift 3 • 16:00–24:00</option>
+  </select>
+ </div>
+ <div class="field"><label>CONVEYOR</label>
+  <select id="conveyor">
+   <option value="all">Semua Conveyor</option>
+   <option value="1">Conveyor 1</option><option value="2">Conveyor 2</option>
+   <option value="3">Conveyor 3</option><option value="4">Conveyor 4</option>
+   <option value="5">Conveyor 5</option><option value="6">Conveyor 6</option>
+   <option value="7">Conveyor 7</option>
+  </select>
+ </div>
+ <div class="field"><label>ACTION</label><button id="refresh" onclick="loadDashboard()">↻ Refresh</button></div>
+ <div id="status" class="status">TUNGGU AJA...</div>
+</section>
+
+<section class="kpi-grid">
+ <div class="kpi"><div class="label">Total Throughput</div><div class="value" id="totalThroughput">0</div><div class="sub">Order aktual FMS</div></div>
+ <div class="kpi"><div class="label">Hourly Productivity</div><div class="value"><span id="productivity">0</span> <small style="font-size:11px;color:#667085">/h</small></div><div class="sub">Throughput ÷ Working Hours</div></div>
+ <div class="kpi"><div class="label">MP Bagger</div><div class="value" id="operatorCount">0</div><div class="sub">Operator unik pada periode</div></div>
+ <div class="kpi"><div class="label">Conveyor Active</div><div class="value"><span id="activeConveyor">0</span><small style="font-size:11px;color:#667085"> / 7</small></div><div class="sub">Conveyor dengan aktivitas</div></div>
+</section>
+
+<section class="soc-grid">
+ <div class="soc-card"><div class="soc-title">SOC</div><div class="soc-value" id="soc">0</div><div class="soc-sub">Order dalam sistem SOC</div></div>
+ <div class="soc-card"><div class="soc-title">Transported</div><div class="soc-value" id="transported">0</div><div class="soc-sub">Order transported</div></div>
+ <div class="soc-card"><div class="soc-title">SOC Received</div><div class="soc-value" id="socReceived">0</div><div class="soc-sub">Order received</div></div>
+</section>
+
+<section class="section">
+ <div class="head"><div class="section-title">Monitoring Conveyor 1–7</div><div class="note">Data aktual FMS</div></div>
+ <div id="conveyorGrid" class="conveyor-grid"></div>
+</section>
+
+<section class="section">
+ <div class="head"><div class="section-title">Hourly Production</div><div class="note">MP berdasarkan Check-In / Check-Out</div></div>
+ <div class="table-wrap">
+  <table>
+   <thead><tr><th>Hour</th><th>MP</th><th>Throughput</th><th>Productivity</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th><th>C6</th><th>C7</th></tr></thead>
+   <tbody id="hourlyTable"></tbody>
+  </table>
+ </div>
+</section>
+
+<section class="section">
+ <div class="head"><div class="section-title">Bagger Performance</div><div class="note">Ranking berdasarkan productivity aktual</div></div>
+ <div class="ranking">
+  <div class="rank-card"><div class="rank-title top">🏆 TOP 10 BAGGER</div><div class="table-wrap"><table class="rank-table"><thead><tr><th>#</th><th>Operator</th><th>Conv</th><th>MP Time</th><th>Throughput</th><th>Productivity</th></tr></thead><tbody id="topTable"></tbody></table></div></div>
+  <div class="rank-card"><div class="rank-title bottom">⚠ BOTTOM 10 BAGGER</div><div class="table-wrap"><table class="rank-table"><thead><tr><th>#</th><th>Operator</th><th>Conv</th><th>MP Time</th><th>Throughput</th><th>Productivity</th></tr></thead><tbody id="bottomTable"></tbody></table></div></div>
+ </div>
+</section>
+
+<section class="section">
+ <div class="head"><div class="section-title">Detail Productivity Operator</div><div class="note">Operator aktual FMS</div></div>
+ <div class="table-wrap">
+  <table>
+   <thead><tr><th>Conveyor</th><th>Operator</th><th>Workstation</th><th>Working Hours</th><th>Hourly Productivity</th><th>Total Throughput</th><th>Check In</th><th>Check Out</th></tr></thead>
+   <tbody id="detailTable"></tbody>
+  </table>
+ </div>
+</section>
+
+</main>
+
+<script>
+let busy=false;
+
+document.addEventListener('DOMContentLoaded',function(){
+ setDefaultDate();
+
+ document.getElementById('mode').addEventListener('change',function(){
+  document.getElementById('date').disabled=this.value==='LIVE';
+  loadDashboard();
+ });
+
+ loadDashboard();
+});
+
+function setDefaultDate(){
+ const d=new Date();
+ document.getElementById('date').value =
+  d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+ document.getElementById('date').disabled=true;
+}
+
+function loadDashboard(){
+ if(busy)return;
+
+ const mode=document.getElementById('mode').value;
+ const date=document.getElementById('date').value;
+ const shift=document.getElementById('shift').value;
+ const conveyor=document.getElementById('conveyor').value;
+
+ if(!date){
+  setStatus('Tanggal belum dipilih.','error');
+  return;
+ }
+
+ busy=true;
+ setLoading(true);
+ setStatus('Mengambil data FMS...','');
+
+ google.script.run
+  .withSuccessHandler(function(result){
+   busy=false;
+   setLoading(false);
+   renderDashboard(result);
+  })
+  .withFailureHandler(function(error){
+   busy=false;
+   setLoading(false);
+   console.error(error);
+   setStatus(
+    error&&error.message
+     ? error.message
+     : 'Gagal mengambil data FMS.',
+    'error'
+   );
+  })
+  .getDashboardData({
+   mode:mode,
+   date:date,
+   fromDate:date,
+   toDate:date,
+   shift:shift,
+   conveyor:conveyor
+  });
+}
+
+function renderDashboard(result){
+ if(!result){
+  setStatus('Response FMS kosong.','error');
+  return;
+ }
+
+ if(result.success===false){
+  setStatus(result.message||'FMS error.','error');
+  return;
+ }
+
+ const s=result.summary||{};
+ const soc=result.soc||{};
+
+ setText('totalThroughput',s.totalThroughput);
+ setText('productivity',s.productivity);
+ setText('operatorCount',s.totalOperator);
+ setText('activeConveyor',s.activeConveyor);
+
+ setText('soc',soc.soc);
+ setText('transported',soc.transported);
+ setText('socReceived',soc.socReceived);
+
+ renderConveyors(result.conveyors||[]);
+ renderHourly(result.hourly||[]);
+ renderDetail(result.allOperators||[]);
+ renderRanking(result.top10||[],result.bottom10||[]);
+
+ document.getElementById('modeText').textContent =
+  String(result.mode||'LIVE').toUpperCase()==='LIVE'
+   ? 'LIVE FMS'
+   : 'HISTORY FMS';
+
+ document.getElementById('lastUpdate').textContent =
+  formatDateTime(result.generatedAt);
+
+ const rowCount =
+  result.source&&result.source.rowCount
+   ? result.source.rowCount
+   : 0;
+
+ if(rowCount>0){
+  setStatus(
+   'Connected • '+fmt(rowCount)+' row FMS',
+   'success'
+  );
+ }else{
+  setStatus(
+   'FMS terhubung, tetapi row productivity = 0',
+   'error'
+  );
+ }
+
+ if(soc.error){
+  console.warn('SOC:',soc.error);
+ }
+}
+
+function renderConveyors(list){
+ const box=document.getElementById('conveyorGrid');
+ box.innerHTML='';
+
+ for(let i=1;i<=7;i++){
+  const item=list.find(function(x){
+   return Number(
+    x.conveyor!==undefined
+     ? x.conveyor
+     : x.number
+   )===i;
+  })||{
+   conveyor:i,
+   name:'Conveyor '+i,
+   throughput:0,
+   productivity:0,
+   operators:0,
+   active:false
+  };
+
+  const active=
+   !!item.active ||
+   Number(item.throughput||0)>0 ||
+   Number(item.operators||0)>0;
+
+  const card=document.createElement('div');
+  card.className='conveyor';
+
+  card.innerHTML=
+   '<div class="c-head">'+
+    '<div class="c-name">'+
+     esc(item.name||('Conveyor '+i))+
+    '</div>'+
+    '<div class="pill '+(active?'online':'offline')+'">'+
+     (active?'ONLINE':'NO DATA')+
+    '</div>'+
+   '</div>'+
+   '<div class="c-number">'+fmt(item.throughput)+'</div>'+
+   '<div class="c-label">TOTAL THROUGHPUT</div>'+
+   '<div class="c-grid">'+
+    '<div><div class="mini-label">PRODUCTIVITY</div>'+
+     '<div class="mini-value">'+fmt(item.productivity)+'</div></div>'+
+    '<div><div class="mini-label">MP</div>'+
+     '<div class="mini-value">'+fmt(item.operators)+'</div></div>'+
+   '</div>';
+
+  box.appendChild(card);
+ }
+}
+
+function renderHourly(list){
+ const body=document.getElementById('hourlyTable');
+ body.innerHTML='';
+
+ if(!list.length){
+  body.innerHTML='<tr><td colspan="11">Tidak ada data.</td></tr>';
+  return;
+ }
+
+ let total=0;
+ let wh=0;
+
+ list.forEach(function(hour){
+  total+=Number(hour.throughput||0);
+  wh+=Number(hour.workingHours||0);
+
+  const map={};
+
+  (hour.conveyors||[]).forEach(function(c){
+   map[Number(c.conveyor)]=c;
+  });
+
+  let cells='';
+
+  for(let c=1;c<=7;c++){
+   cells+=
+    '<td>'+
+     fmt(map[c]?map[c].throughput:0)+
+    '</td>';
+  }
+
+  body.innerHTML +=
+   '<tr>'+
+    '<td class="hour">'+esc(hour.label||'')+'</td>'+
+    '<td class="prod">'+fmt(hour.mp)+'</td>'+
+    '<td>'+fmt(hour.throughput)+'</td>'+
+    '<td class="prod">'+fmt(hour.productivity)+'</td>'+
+    cells+
+   '</tr>';
+ });
+
+ const p=wh>0?total/wh:0;
+
+ body.innerHTML +=
+  '<tr class="total">'+
+   '<td>OVERALL</td>'+
+   '<td>-</td>'+
+   '<td>'+fmt(total)+'</td>'+
+   '<td>'+fmt(p)+'</td>'+
+   '<td colspan="7">-</td>'+
+  '</tr>';
+}
+
+function renderDetail(list){
+ const body=document.getElementById('detailTable');
+ body.innerHTML='';
+
+ if(!list.length){
+  body.innerHTML='<tr><td colspan="8">Tidak ada data operator.</td></tr>';
+  return;
+ }
+
+ list.slice().sort(function(a,b){
+  return Number(a.conveyor||0)-Number(b.conveyor||0);
+ }).forEach(function(row){
+  body.innerHTML +=
+   '<tr>'+
+    '<td>Conveyor '+esc(row.conveyor||'-')+'</td>'+
+    '<td style="text-align:left;font-weight:800">'+
+     esc(cleanOperator(row.operator))+
+    '</td>'+
+    '<td>'+esc(row.workstation||'-')+'</td>'+
+    '<td>'+Number(row.workingHours||0).toFixed(2)+' h</td>'+
+    '<td class="prod">'+fmt(row.productivity)+'</td>'+
+    '<td>'+fmt(row.throughput)+'</td>'+
+    '<td>'+esc(formatDateTime(row.checkIn))+'</td>'+
+    '<td>'+esc(formatDateTime(row.checkOut))+'</td>'+
+   '</tr>';
+ });
+}
+
+function renderRanking(top,bottom){
+ renderRankTable('topTable',top);
+ renderRankTable('bottomTable',bottom);
+}
+
+function renderRankTable(id,list){
+ const body=document.getElementById(id);
+ body.innerHTML='';
+
+ if(!list.length){
+  body.innerHTML='<tr><td colspan="6">Tidak ada data.</td></tr>';
+  return;
+ }
+
+ list.forEach(function(item,i){
+  body.innerHTML +=
+   '<tr>'+
+    '<td class="rank">'+(item.rank||i+1)+'</td>'+
+    '<td class="op">'+esc(cleanOperator(item.operator))+'</td>'+
+    '<td>C'+esc(item.conveyor||'-')+'</td>'+
+    '<td>'+Number(item.workingHours||0).toFixed(2)+' h</td>'+
+    '<td>'+fmt(item.throughput)+'</td>'+
+    '<td class="prod">'+fmt(item.productivity)+'</td>'+
+   '</tr>';
+ });
+}
+
+function cleanOperator(value){
+ return String(value||'').replace(/^\[[^\]]+\]/,'').trim();
+}
+
+function setText(id,value){
+ document.getElementById(id).textContent=fmt(value);
+}
+
+function fmt(value){
+ const n=Number(value||0);
+ return isFinite(n)
+  ? n.toLocaleString('id-ID',{maximumFractionDigits:0})
+  : '0';
+}
+
+function formatDateTime(value){
+ if(!value)return '-';
+
+ const d=new Date(value);
+
+ if(isNaN(d.getTime())){
+  return String(value);
+ }
+
+ return d.toLocaleString('id-ID',{
+  day:'2-digit',
+  month:'2-digit',
+  year:'numeric',
+  hour:'2-digit',
+  minute:'2-digit',
+  second:'2-digit'
+ });
+}
+
+function setStatus(message,type){
+ const el=document.getElementById('status');
+ el.textContent=message;
+
+ el.style.color=
+  type==='error'
+   ? '#dc2626'
+   : type==='success'
+    ? '#16a34a'
+    : '#667085';
+}
+
+function setLoading(on){
+ const b=document.getElementById('refresh');
+ b.disabled=on;
+ b.textContent=on?'Loading...':'↻ Refresh';
+}
+
+function esc(value){
+ return String(
+  value===undefined||value===null
+   ? ''
+   : value
+ )
+ .replace(/&/g,'&amp;')
+ .replace(/</g,'&lt;')
+ .replace(/>/g,'&gt;')
+ .replace(/"/g,'&quot;')
+ .replace(/'/g,'&#039;');
+}
+
+setInterval(function(){
+ if(
+  document.getElementById('mode').value==='LIVE' &&
+  !busy
+ ){
+  loadDashboard();
+ }
+},300000);
+</script>
+</body>
+</html>
